@@ -2,11 +2,43 @@ import { join } from "https://deno.land/std/path/mod.ts";
 import { bold, red, yellow } from "https://deno.land/std/fmt/colors.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts"; // WASM-based SQLite
 import { generateRandomSecret } from "./utils.ts";
-import { OscillumConfig, DEFAULT_CONFIG } from "./types.ts";
+import { DEFAULT_CONFIG } from "./types.ts";
 import { toState } from "./utils.ts";
 
 const currentDir = Deno.cwd();
 const DB_PATH = join(currentDir, "oscillum.db");
+
+/**
+ * Ensures that default configuration values are set in the database
+ * @param db The database connection
+ */
+function ensureConfigDefaults(db: DB): void {
+  try {
+    // For each default config key, check if it exists and set it if it doesn't
+    for (const [key, value] of Object.entries(DEFAULT_CONFIG)) {
+      // Skip if null or undefined
+      if (value === null || value === undefined) continue;
+      
+      // Check if this config key already exists
+      let exists = false;
+      for (const _ of db.query("SELECT 1 FROM config WHERE key = ?", [key])) {
+        exists = true;
+        break;
+      }
+      
+      // Only insert if it doesn't exist
+      if (!exists) {
+        console.log(yellow(bold(`Setting default configuration for ${key}`)));
+        db.query(
+          "INSERT INTO config (key, value) VALUES (?, ?)",
+          [key, String(value)]
+        );
+      }
+    }
+  } catch (error) {
+    console.error(red(bold(`❌ Error setting default configuration: ${error instanceof Error ? error.message : String(error)}`)));
+  }
+}
 
 function ensureDB(): DB {
   const db = new DB(DB_PATH);
@@ -111,6 +143,9 @@ function ensureDB(): DB {
       created_at INTEGER NOT NULL
     )
   `);
+
+  // Ensure default configuration is set
+  ensureConfigDefaults(db);
 
   return db;
 }

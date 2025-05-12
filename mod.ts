@@ -1,7 +1,6 @@
 import { bold, red, cyan } from "https://deno.land/std/fmt/colors.ts";
 import { createIdentityFromKey, setupAgent } from "./identity.ts";
 import { retrieveAndStoreProposals, createNeuron } from "./neuron.ts";
-import { displayTitle } from "./utils.ts";
 import { startWebServer, PORT } from "./web.ts";
 import { runProposalAnalysis } from "./agent.ts";
 import { getConfigValue } from "./db.ts";
@@ -27,17 +26,16 @@ export { createIdentityFromKey, setupAgent } from "./identity.ts";
 /**
  * Main function to start the Oscillum service
  * 
- * @param options Configuration options
  * @returns A promise that resolves when the server is started
  */
-export async function start(options?: { port?: number }) {
+export async function start() {
   // Initialize the proposal analysis system
   runProposalAnalysis();
   
   // Start the web server
   const server = await startWebServer();
   
-  console.log(`🚀 Oscillum service running on port ${PORT}`);
+  console.log(`🚀 Oscillum service running on http://localhost:${PORT}`);
   
   return server;
 }
@@ -51,13 +49,13 @@ if (import.meta.main) {
 // Original ICP functionality
 async function runICPFunctionality() {
   // 1. Get or create identity from config stored in SQLite
-  const IC_AUTHENTICATION_KEY = getConfigValue("IC_AUTHENTICATION_KEY");
+  const IC_AUTHENTICATION_KEY = getConfigValue("IC_AUTHENTICATION_KEY") || "";
   const identity = await createIdentityFromKey(IC_AUTHENTICATION_KEY);
 
   const principal = identity.getPrincipal();
   console.log(bold("Using principal:") + " " + red(principal.toText()));
 
-  // You can also use the user preferences
+  // Retrieve user preferences from the database (which now has the default set by ensureConfigDefaults)
   let USER_PROMPT = getConfigValue("USER_PROMPT");
   console.log(bold("User preferences:"), USER_PROMPT);
 
