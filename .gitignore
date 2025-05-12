@@ -1,0 +1,44 @@
+# Database files
+oscillum.db
+*.db
+*.db-journal
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled output
+/public
+/dist
+/build
+*.compiled.js
+
+# Binary files
+oscillum
+oscillum.exe
+
+# Environment variables
+.env*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Deno specific
+.deno_dir/
+
+# Temporary files
+tmp/
+temp/ 

@@ -1,0 +1,43 @@
+{
+    "tasks": {
+      "start": "deno run --allow-net --allow-read --allow-write --allow-env mod.ts",
+      "dev": "deno run --watch --allow-net --allow-read --allow-write --allow-env mod.ts",
+      "web": "deno run --allow-net --allow-read --allow-write --allow-env web.ts"
+    },
+    "compilerOptions": {
+      "strict": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
+      "noImplicitThis": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true
+    },
+    "nodeModulesDir": "auto",
+    "lint": {
+      "files": {
+        "include": ["**/*.ts"]
+      },
+      "rules": {
+        "tags": ["recommended"],
+        "include": ["ban-untagged-todo"],
+        "exclude": ["no-unused-vars"]
+      }
+    },
+    "fmt": {
+      "files": {
+        "include": ["**/*.ts"]
+      },
+      "options": {
+        "useTabs": false,
+        "lineWidth": 100,
+        "indentWidth": 2,
+        "singleQuote": false,
+        "proseWrap": "preserve"
+      }
+    }
+  }
