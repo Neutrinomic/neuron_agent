@@ -168,6 +168,9 @@ export async function processAndVoteOnStoredProposals(governance: GovernanceCani
           
           if (voted) {
             console.log(`Neuron ${neuronId.toString()} has already voted on proposal ${proposal.id}.`);
+          // Mark the proposal as processed since we've already voted
+          markProposalProcessed(proposal.id);
+          console.log(green(`✅ Marked proposal ${proposal.id} as processed (already voted)`));
           } else {
             console.log(`Neuron ${neuronId.toString()} hasn't voted on proposal ${proposal.id}. Casting reject vote...`);
             

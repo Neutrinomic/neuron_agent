@@ -198,11 +198,34 @@ export function storeProposal(id: string, data: unknown): void {
     // Use the toState function to safely serialize the proposal data
     const serializedData = JSON.stringify(toState(data));
     
-    db.query(
-      `INSERT INTO proposals (id, data) VALUES (?, ?)
-       ON CONFLICT(id) DO UPDATE SET data = excluded.data`,
-      [id, serializedData],
-    );
+    // Check if this proposal already exists and if it's processed
+    let processed = 0;
+    const exists = proposalExists(id);
+    
+    if (exists) {
+      // If proposal exists, get its current processed status
+      for (const [processedValue] of db.query("SELECT processed FROM proposals WHERE id = ?", [id])) {
+        processed = Number(processedValue);
+        break;
+      }
+    }
+    
+    // If this is a new proposal, insert with processed=0
+    // If it's an existing proposal, update data but preserve the processed flag
+    if (!exists) {
+      db.query(
+        "INSERT INTO proposals (id, data, processed) VALUES (?, ?, 0)",
+        [id, serializedData]
+      );
+    } else {
+      db.query(
+        "UPDATE proposals SET data = ? WHERE id = ?",
+        [serializedData, id]
+      );
+      
+      console.log(`Updated proposal ${id}, preserving processed status: ${processed === 1 ? 'processed' : 'unprocessed'}`);
+    }
+    
   } catch (error) {
     console.error(red(bold(`❌ Error storing proposal: ${error instanceof Error ? error.message : String(error)}`)));
   } finally {
