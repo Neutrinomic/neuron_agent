@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "start": "deno run --allow-net --allow-read=./ --allow-write=./ --allow-env mod.ts",
+    "build": "deno compile --allow-net --allow-read=./ --allow-write=./ --allow-env --output oscillum mod.ts",
+    "serve": "deno run --allow-net --allow-read=./ --allow-write=./ --allow-env web.ts"
+  }
+} 

@@ -1,8 +1,6 @@
 {
     "tasks": {
-      "start": "deno run --allow-net --allow-read --allow-write --allow-env mod.ts",
-      "dev": "deno run --watch --allow-net --allow-read --allow-write --allow-env mod.ts",
-      "web": "deno run --allow-net --allow-read --allow-write --allow-env web.ts"
+      "start": "deno run --allow-net --allow-read=./ --allow-write=./ --allow-env mod.ts"
     },
     "compilerOptions": {
       "strict": true,
