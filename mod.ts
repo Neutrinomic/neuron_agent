@@ -44,7 +44,9 @@ export async function start(options?: { port?: number }) {
 
 // If this module is executed directly (not imported), start the service
 if (import.meta.main) {
+    await runICPFunctionality();
   await start();
+
 }
 // Original ICP functionality
 async function runICPFunctionality() {
