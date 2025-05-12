@@ -707,8 +707,8 @@ export async function startWebServer() {
   
   app.get("/api/neurons", async (req: Request, res: Response) => {
     try {
-      const config = getOrCreateConfig();
-      const identity = await createIdentityFromKey(config.IC_AUTHENTICATION_KEY);
+      const IC_AUTHENTICATION_KEY = getConfigValue("IC_AUTHENTICATION_KEY");
+      const identity = await createIdentityFromKey(IC_AUTHENTICATION_KEY);
       const { governance } = await setupAgent(identity);
       
       const neurons = await governance.listNeurons({ certified: true });
@@ -719,7 +719,6 @@ export async function startWebServer() {
           const neuronInfo = {
             id: neuron.neuronId.toString(),
             // Use optional chaining and nullish coalescing to handle potentially missing properties
-            stake: (neuron.cachedNeuronStake || 0).toString(),
             dissolveDelay: (neuron.dissolveDelaySeconds || 0).toString()
           };
           

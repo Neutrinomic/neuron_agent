@@ -145,49 +145,6 @@ export function setConfigValue(key: string, value: string): void {
   }
 }
 
-export function getOrCreateConfig(): OscillumConfig {
-  const config: OscillumConfig = { ...DEFAULT_CONFIG };
-
-  
-  try {
-    const storedKey = getConfigValue("IC_AUTHENTICATION_KEY");
-    if (!storedKey) {
-      const newSecret = generateRandomSecret();
-      setConfigValue("IC_AUTHENTICATION_KEY", newSecret);
-      config.IC_AUTHENTICATION_KEY = newSecret;
-      console.log(yellow(bold("⚠️ Generated and saved a new authentication key to DB")));
-    } else {
-      config.IC_AUTHENTICATION_KEY = storedKey;
-    }
-
-    const prompt = getConfigValue("USER_PROMPT");
-    if (!prompt) {
-      setConfigValue("USER_PROMPT", DEFAULT_CONFIG.USER_PROMPT);
-      config.USER_PROMPT = DEFAULT_CONFIG.USER_PROMPT;
-    } else {
-      config.USER_PROMPT = prompt;
-    }
-    
-    // Initialize vote schedule delay if not set
-    const scheduleDelay = getConfigValue("VOTE_SCHEDULE_DELAY");
-    if (!scheduleDelay) {
-      setConfigValue("VOTE_SCHEDULE_DELAY", DEFAULT_CONFIG.VOTE_SCHEDULE_DELAY || "3600");
-      config.VOTE_SCHEDULE_DELAY = DEFAULT_CONFIG.VOTE_SCHEDULE_DELAY;
-    } else {
-      config.VOTE_SCHEDULE_DELAY = scheduleDelay;
-    }
-    
-    // Load OpenAI API key
-    const openaiKey = getConfigValue("OPENAI_KEY");
-    if (openaiKey) {
-      config.OPENAI_KEY = openaiKey;
-    }
-  } catch (error) {
-    console.error(red(bold(`❌ Database error: ${error instanceof Error ? error.message : String(error)}`)));
-  }
-
-  return config;
-}
 
 export function updateConfig(key: string, value: string): void {
   try {
