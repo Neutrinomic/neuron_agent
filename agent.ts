@@ -1,8 +1,8 @@
-import { bold, red, green, yellow, cyan } from "https://deno.land/std/fmt/colors.ts";
-import { storeAgentVote, logAgentCommunication, markAgentVoteScheduled, scheduleVote, getConfigValue } from "./db.ts";
-import OpenAI from "npm:openai@4.98.0";
-import { zodTextFormat } from "npm:openai@4.98.0/helpers/zod";
-import { z } from "npm:zod";
+import { bold, red, green, yellow, cyan } from "./deps.ts";
+import { storeAgentVote, logAgentCommunication, markAgentVoteScheduled, scheduleVote, getConfigValue } from "./db.js";
+import OpenAI from "openai";
+import { zodTextFormat } from "openai/helpers/zod";
+import { z } from "zod";
 
 // Add a lock flag to prevent multiple analyses from running concurrently
 let analysisInProgress = false;
@@ -127,7 +127,7 @@ Return your answer as a JSON object only, not markdown.`;
       // tools: [ { type: "web_search_preview" } ],
       input: prompt,
       text: {
-        format: zodTextFormat(ProposalReview, "review"),
+        format: zodTextFormat(ProposalReview, "review") as any,
       },
     });
     const endTime = Date.now();

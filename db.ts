@@ -291,28 +291,55 @@ export function updateMinimumProposalId(proposalId: string): void {
 /**
  * Gets unprocessed proposals from the database
  */
-export function getUnprocessedProposals(): any[] {
-  const db = ensureDB();
-  const proposals: any[] = [];
-  
+export function getUnprocessedProposals(neuronId?: bigint | null): any[] {
   try {
-    for (const [id, data] of db.query("SELECT id, data FROM proposals WHERE processed = 0")) {
-      try {
-        proposals.push({
-          id: String(id),
-          ...JSON.parse(String(data))
+    const db = ensureDB();
+    
+    // Base query to get unprocessed proposals
+    let query = `
+      SELECT p.* 
+      FROM proposals p
+      LEFT JOIN agent_votes av ON p.id = av.proposal_id
+      WHERE av.id IS NULL
+      AND (p.status = 0 OR p.status IS NULL)
+      AND p.proposalTimestampSeconds + p.deadlineTimestampSeconds > ?
+    `;
+    
+    // Get current time in seconds
+    const currentTime = Math.floor(Date.now() / 1000);
+    
+    // Get proposals
+    const proposals = db.prepare(query).all(currentTime);
+    
+    // Filter out proposals the neuron has already voted on
+    if (neuronId) {
+      return proposals.filter(proposal => {
+        // Skip if proposal doesn't have ballots
+        if (!proposal.ballots) {
+          return true;
+        }
+        
+        // Parse ballots if they're stored as a string
+        const ballots = typeof proposal.ballots === 'string' ? 
+          JSON.parse(proposal.ballots) : proposal.ballots;
+        
+        // Check if neuron has already voted
+        const alreadyVoted = ballots.some((ballot: any) => {
+          const ballotNeuronId = ballot.neuronId?.toString ? 
+            ballot.neuronId.toString() : String(ballot.neuronId);
+          return ballotNeuronId === neuronId.toString();
         });
-      } catch (parseError) {
-        console.error(red(bold(`❌ Error parsing proposal data: ${parseError instanceof Error ? parseError.message : String(parseError)}`)));
-      }
+        
+        // Only include proposals where neuron hasn't voted
+        return !alreadyVoted;
+      });
     }
+    
+    return proposals;
   } catch (error) {
-    console.error(red(bold(`❌ Error retrieving unprocessed proposals: ${error instanceof Error ? error.message : String(error)}`)));
-  } finally {
-    db.close();
+    console.error(`Error in getUnprocessedProposals: ${error instanceof Error ? error.message : String(error)}`);
+    return [];
   }
-  
-  return proposals;
 }
 
 /**
